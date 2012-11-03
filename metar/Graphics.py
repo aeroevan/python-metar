@@ -4,6 +4,7 @@ from matplotlib.ticker import FuncFormatter
 import matplotlib.dates as dates
 import pandas
 
+__all__ = ['hyetograph', 'rainClock', 'windRose']
 
 def hyetograph(rain, freq='hourly', ax=None):
     if ax is None:
