@@ -1,13 +1,13 @@
 #!/usr/bin/env python
 #
 #  A python package for interpreting METAR and SPECI weather reports.
-#  
+#
 #  US conventions for METAR/SPECI reports are described in chapter 12 of
-#  the Federal Meteorological Handbook No.1. (FMH-1 1995), issued by NOAA. 
+#  the Federal Meteorological Handbook No.1. (FMH-1 1995), issued by NOAA.
 #  See <http://metar.noaa.gov/>
-# 
-#  International conventions for the METAR and SPECI codes are specified in 
-#  the WMO Manual on Codes, vol I.1, Part A (WMO-306 I.i.A).  
+#
+#  International conventions for the METAR and SPECI codes are specified in
+#  the WMO Manual on Codes, vol I.1, Part A (WMO-306 I.i.A).
 #
 #  This module handles a reports that follow the US conventions, as well
 #  the more general encodings in the WMO spec.  Other regional conventions
@@ -15,15 +15,15 @@
 #
 #  The current METAR report for a given station is available at the URL
 #  http://weather.noaa.gov/pub/data/observations/metar/stations/<station>.TXT
-#  where <station> is the four-letter ICAO station code.  
+#  where <station> is the four-letter ICAO station code.
 #
-#  The METAR reports for all reporting stations for any "cycle" (i.e., hour) 
+#  The METAR reports for all reporting stations for any "cycle" (i.e., hour)
 #  in the last 24 hours is available in a single file at the URL
 #  http://weather.noaa.gov/pub/data/observations/metar/cycles/<cycle>Z.TXT
-#  where <cycle> is a 2-digit cycle number (e.g., "00", "05" or "23").  
-# 
+#  where <cycle> is a 2-digit cycle number (e.g., "00", "05" or "23").
+#
 #  Copyright 2004  Tom Pollard
-# 
+#
 """
 This module defines the Metar class.  A Metar object represents the weather report encoded by a single METAR code.
 """
@@ -49,7 +49,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 import re
 import datetime
-import string
 from .datatypes import *
 
 ## Exceptions
@@ -419,7 +418,7 @@ class Metar(object):
                 errorfile.write(msg)
             else:
                 print(msg)
-                raise ParserError(handler.__name__+" failed while processing '"+code+"'\n"+string.join(err.args))
+                raise ParserError(handler.__name__+" failed while processing '"+code+"'\n"+" ".join(err.args))
                 raise err
         if self._unparsed_groups:
             code = ' '.join(self._unparsed_groups)
@@ -437,7 +436,7 @@ class Metar(object):
             m = pattern.match(code)
             while m:
                 if debug: _report_match(handler, m.group())
-                self._trend_groups.append(string.strip(m.group()))
+                self._trend_groups.append(m.group().strip())
                 handler(self,m.groupdict())
                 code = code[m.end():]
                 if not repeatable: break
@@ -877,10 +876,10 @@ class Metar(object):
             while group:
                 ltg_types.append(LIGHTNING_TYPE[group[:2]])
                 group = group[2:]
-            parts.append("("+string.join(ltg_types,",")+")")
+            parts.append("("+",".join(ltg_types)+")")
         if d['loc']:
             parts.append(xlate_loc(d['loc']))
-        self._remarks.append(string.join(parts," "))
+        self._remarks.append(" ".join(parts))
 
     def _handleTSLocRemark( self, d ):
         """
@@ -935,7 +934,7 @@ class Metar(object):
                        (SKY_RE, _handleTrend, True),
                        (COLOR_RE, _handleTrend, True)]
 
-    ## the list of patterns for the various remark groups, 
+    ## the list of patterns for the various remark groups,
     ## paired with the handler functions to use to record the decoded remark.
 
     remark_handlers = [ (AUTO_RE,         _handleAutoRemark),
@@ -1008,7 +1007,7 @@ class Metar(object):
         if self._unparsed_remarks:
             lines.append("- "+' '.join(self._unparsed_remarks))
         lines.append("METAR: "+self.code)
-        return string.join(lines,"\n")
+        return "\n".join(lines)
 
     def report_type(self):
         """
@@ -1112,7 +1111,7 @@ class Metar(object):
                 lines.append("on runway %s, from %d to %s" % (name, low.value(units), high.string(units)))
             else:
                 lines.append("on runway %s, %s" % (name, low.string(units)))
-        return string.join(lines,"; ")
+        return "; ".join(lines)
 
     def present_weather(self):
         """
@@ -1155,12 +1154,12 @@ class Metar(object):
             if otheri:
                 code_parts.append(otheri)
                 text_parts.append(WEATHER_OTHER[otheri])
-            code = string.join(code_parts)
+            code = " ".join(code_parts)
             if code in WEATHER_SPECIAL:
                 text_list.append(WEATHER_SPECIAL[code])
             else:
-                text_list.append(string.join(text_parts," "))
-        return string.join(text_list,"; ")
+                text_list.append(" ".join(text_parts))
+        return "; ".join(text_list)
 
     def sky_conditions( self, sep="; " ):
         """
@@ -1184,7 +1183,7 @@ class Metar(object):
                 else:
                     text_list.append("%s%s at %s" %
                           (SKY_COVER[cover],what,str(height)))
-        return string.join(text_list,sep)
+        return sep.join(text_list)
 
     def trend(self):
         """
@@ -1196,5 +1195,5 @@ class Metar(object):
         """
         Return the decoded remarks.
         """
-        return string.join(self._remarks,sep)
+        return sep.join(self._remarks)
 
