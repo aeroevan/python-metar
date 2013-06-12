@@ -1133,6 +1133,7 @@ class Metar(object):
                         text_parts.append(WEATHER_DESC[desci[2:]])
             if preci:
                 code_parts.append(preci)
+                precip_text = ''
                 if len(preci) == 2:
                     precip_text = WEATHER_PREC[preci]
                 elif len(preci) == 4:
