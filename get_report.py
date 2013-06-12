@@ -4,14 +4,14 @@ import os
 import sys
 import getopt
 import string
-import urllib
+import urllib.request, urllib.parse, urllib.error
 from metar import Metar
 
 BASE_URL = "http://weather.noaa.gov/pub/data/observations/metar/stations"
 
 def usage():
     program = os.path.basename(sys.argv[0])
-    print("Usage: %s <station> [ <station> ... ]" % program)
+    print(("Usage: %s <station> [ <station> ... ]" % program))
     options = """Options:
     <station> . a four-letter ICAO station code (e.g., "KEWR")
 	      """
@@ -38,19 +38,19 @@ for name in stations:
     if debug: 
         sys.stderr.write("[ "+url+" ]")
     try:
-        urlh = urllib.urlopen(url)
+        urlh = urllib.request.urlopen(url)
         report = ''
         for line in urlh:
             if line.startswith(name):
                 report = line.strip()
                 obs = Metar.Metar(line)
-                print obs.string()
+                print((obs.string()))
                 break
         if not report:
-            print("No data for %s\n\n" % (name,))
-    except Metar.ParserError, err:
-        print("METAR code: "+ line)
-        print(string.join(err.args,", ") + "\n")
+            print(("No data for %s\n\n" % (name,)))
+    except Metar.ParserError as err:
+        print(("METAR code: "+ line))
+        print((string.join(err.args,", ") + "\n"))
     except:
-        print("Error retrieving %s data\n" % (name,))
+        print(("Error retrieving %s data\n" % (name,)))
  

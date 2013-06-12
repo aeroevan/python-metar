@@ -5,13 +5,13 @@
 #  Copyright 2004  Tom Pollard
 
 # metar stuff
-import metar
-import datatypes
+from . import metar
+from . import datatypes
 
 # std lib stuff
 import datetime
-import urllib2
-import cookielib
+import urllib.request, urllib.error, urllib.parse
+import http.cookiejar
 import pdb
 import os
 
@@ -88,9 +88,9 @@ class WeatherStation(object):
         input:
             *src* : 'asos' or 'wunderground'
         '''
-        jar = cookielib.CookieJar()
-        handler = urllib2.HTTPCookieProcessor(jar)
-        opener = urllib2.build_opener(handler)
+        jar = http.cookiejar.CookieJar()
+        handler = urllib.request.HTTPCookieProcessor(jar)
+        opener = urllib.request.build_opener(handler)
         try:
             if src.lower() == 'wunderground':
                 url1 = 'http://www.wunderground.com/history/airport/%s/2011/12/4/DailyHistory.html?' % self.sta_id
@@ -103,8 +103,8 @@ class WeatherStation(object):
             elif src.lower() == 'asos':
                 url = 'ftp://ftp.ncdc.noaa.gov/pub/data/asos-fivemin/'
                 opener.open(url)
-        except urllib2.URLError:
-            print('connection to %s not available. working locally' % src)
+        except urllib.error.URLError:
+            print(('connection to %s not available. working locally' % src))
 
         return opener
 
@@ -130,7 +130,7 @@ class WeatherStation(object):
             url = '%s%s/64010%s%s%02d.dat' % \
                         (baseurl, date.year, self.sta_id, date.year, date.month)
         else:
-            raise ValueError, "src must be 'wunderground' or 'asos'"
+            raise ValueError("src must be 'wunderground' or 'asos'")
         return url
 
     def _make_data_file(self, timestamp, src, step):
@@ -178,7 +178,7 @@ class WeatherStation(object):
                 weblines = webdata.readlines()[start:]
                 outfile.writelines(weblines)
             except:
-                print('error on: %s\n' % (url,))
+                print(('error on: %s\n' % (url,)))
                 outfile.close()
                 os.remove(outname)
                 errorfile.write('error on: %s\n' % (url,))
@@ -335,7 +335,7 @@ class WeatherStation(object):
             timestamps = pandas.DatetimeIndex(start=startdate, end=enddate,
                                               freq=freq[source])
         except KeyError:
-            raise ValueError, 'source must be in either "ASOS" or "wunderground"'
+            raise ValueError('source must be in either "ASOS" or "wunderground"')
 
         data = None
         for ts in timestamps:
@@ -345,7 +345,7 @@ class WeatherStation(object):
                 data = data.append(self._read_csv(ts, source))
 
         # add a row number to each row
-        data['rownum'] = range(data.shape[0])
+        data['rownum'] = list(range(data.shape[0]))
 
         # corrected data are appended to the bottom of the ASOS files by NCDC
         # QA people. So for any given date/time index, we want the *last* row
@@ -421,7 +421,7 @@ class WeatherStation(object):
             start = cdata[1].split(',')[0]
             end = cdata[-1].split(',')[0]
             cfile.close()
-            print('%d) %s - start: %s\tend: %s' % (n+1, cf, start, end))
+            print(('%d) %s - start: %s\tend: %s' % (n+1, cf, start, end)))
 
     def loadCompiledFile(self, source, filename=None, filenum=None):
         if filename is None and filenum is None:

@@ -7,7 +7,7 @@ import datetime as dt
 import types
 import os
 import pandas
-import urllib2
+import urllib.request, urllib.error, urllib.parse
 import matplotlib
 import matplotlib.dates as mdates
 

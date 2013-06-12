@@ -4,7 +4,7 @@ import os
 import sys
 import getopt
 import datetime
-import urllib
+import urllib.request, urllib.parse, urllib.error
 
 BASE_URL = "http://weather.noaa.gov/pub/data/observations/metar/stations"
 
@@ -13,7 +13,7 @@ def usage():
 
 def usage():
     program = os.path.basename(sys.argv[0])
-    print("Usage: %s [-p] <station> [ <station> ... ]" % (program, ))
+    print(("Usage: %s [-p] <station> [ <station> ... ]" % (program, )))
     options =  """Options:
     <station> . a four-letter ICAO station code (e.g., "KEWR")
     -p ........ send downloaded data to stdout, ratherthan a file.
@@ -36,35 +36,35 @@ try:
             debug = True
 except:
     usage()
-  
+
 if not stations:
     usage()
 
 for name in stations:
     url = "%s/%s.TXT" % (BASE_URL, name)
     if debug: sys.stderr.write("[ "+url+" ]")
-    
+
     try:
-        urlh = urllib.urlopen(url)
+        urlh = urllib.request.urlopen(url)
         for line in urlh:
             if line.startswith(name):
                 report = line.strip()
                 groups = report.split()
                 if groups[1].endswith('Z'):
-                    date_str = "%02d%02d%s-%s" % (today.year-2000, today.month, 
+                    date_str = "%02d%02d%s-%s" % (today.year-2000, today.month,
                                             groups[1][:2], groups[1][2:])
                 else:
-                    date_str = "%02d%02d%02d-%02d%02dZ" % (today.year-2000, 
+                    date_str = "%02d%02d%02d-%02d%02dZ" % (today.year-2000,
                                      today.month, today.day, today.hour, today.minute)
                 break
     except:
-        print("Error retrieving %s data" % name)
+        print(("Error retrieving %s data" % name))
         continue
     if pipe:
-        print(report+"\n")
+        print((report+"\n"))
     else:
         file = "%s-%s.metar" % (name,date_str)
-        print("Saving current METAR report for station %s in %s" % (name, file))
+        print(("Saving current METAR report for station %s in %s" % (name, file)))
         fileh = open(file,'w')
         fileh.write(report+"\n")
-      fileh.close()
+        fileh.close()

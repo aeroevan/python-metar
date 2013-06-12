@@ -6,7 +6,7 @@ import datetime as dt
 import types
 import os
 import pandas
-import urllib2
+import urllib.request, urllib.error, urllib.parse
 import matplotlib
 import matplotlib.dates as mdates
 
@@ -71,8 +71,8 @@ def test_find_file():
 
 def test_set_cookies():
     sta, ts = makeStationAndTS()
-    assert_true(isinstance(sta.asos, urllib2.OpenerDirector))
-    assert_true(isinstance(sta.wunderground, urllib2.OpenerDirector))
+    assert_true(isinstance(sta.asos, urllib.request.OpenerDirector))
+    assert_true(isinstance(sta.wunderground, urllib.request.OpenerDirector))
     pass
 
 def test_url_by_date():

@@ -10,7 +10,7 @@ import profile, pstats
 
 def usage():
     program = os.path.basename(sys.argv[0])
-    print("Usage: %s [-s] [<file>]" % program)
+    print(("Usage: %s [-s] [<file>]" % program))
     options =  """Options:
         <file> ... a file containing METAR reports to parse
         -q ....... run "quietly" - just report parsing error.
@@ -54,12 +54,12 @@ def process_line(line):
             obs = Metar.Metar(line)
             if report:
                 print("--------------------")
-                print(obs.string())
-        except Metar.ParserError, err:
+                print((obs.string()))
+        except Metar.ParserError as err:
             if not silent:
                 print("--------------------")
-                print("METAR code: %s" % line)
-                print(string.join(err.args,", "))
+                print(("METAR code: %s" % line))
+                print((string.join(err.args,", ")))
 
 def process_files(files):
     """Decode METAR lines from the given files."""
@@ -86,4 +86,4 @@ else:
 
 if prof:
     ps = pstats.load('metar.prof')
-    print(ps.strip_dirs().sort_stats('time').print_stats())
+    print((ps.strip_dirs().sort_stats('time').print_stats()))
